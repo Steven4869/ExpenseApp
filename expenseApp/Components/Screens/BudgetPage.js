@@ -26,7 +26,7 @@ const BudgetPage = () => {
   useEffect(() => {
     if (!isTokenLoading) {
       fetchBudget();
-      fetchExpenses()
+      fetchExpenses();
     }
   }, [token, isTokenLoading]);
   const fetchToken = async () => {
@@ -37,16 +37,16 @@ const BudgetPage = () => {
       console.error('Error fetching token:', error);
     }
   };
-  
+
   const fetchBudget = async () => {
     try {
-      console.log("Token: ",token);
+      console.log('Token: ', token);
       const headers = {
         Authorization: `Bearer ${token}`,
       };
-  
+
       const response = await axios.get('http://192.168.29.225:3000/api/budget', { headers });
-  
+
       if (response.status === 200) {
         const budgetData = response.data;
         setAllocatedAmount(budgetData.amount);
@@ -90,7 +90,11 @@ const BudgetPage = () => {
       const headers = {
         Authorization: `Bearer ${token}`,
       };
-      const response = await axios.post('http://192.168.29.225:3000/api/budget', { amount: budget }, { headers });
+      const response = await axios.post(
+        'http://192.168.29.225:3000/api/budget',
+        { amount: budget },
+        { headers },
+      );
 
       if (response.status !== 201) {
         throw new Error('Failed to create budget');
@@ -111,7 +115,11 @@ const BudgetPage = () => {
       const headers = {
         Authorization: `Bearer ${token}`,
       };
-      const response = await axios.put('http://192.168.29.225:3000/api/budget', { amount: budget }, { headers });
+      const response = await axios.put(
+        'http://192.168.29.225:3000/api/budget',
+        { amount: budget },
+        { headers },
+      );
 
       if (response.status !== 200) {
         throw new Error('Failed to update budget');
@@ -134,9 +142,14 @@ const BudgetPage = () => {
         { text: 'Cancel', style: 'cancel' },
         { text: 'Update', onPress: handleUpdateBudget },
       ],
-      { cancelable: false }
+      { cancelable: false },
     );
   };
+  const calculateProgressBarWidth = () => {
+    const utilizationPercentage = (1 - totalExpenses / allocatedAmount) * 100;
+    return `${utilizationPercentage}%`;
+  };
+  
   if (isTokenLoading) {
     return (
       <View style={styles.container}>
@@ -155,11 +168,21 @@ const BudgetPage = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Budget</Text>
-
       {isBudgetAllocated ? (
         <>
           <Text style={styles.budgetText}>Allocated Amount: ${allocatedAmount}</Text>
-          <Text style={styles.budgetText}>Remaining Balance: ${allocatedAmount - totalExpenses}</Text>
+          <Text style={styles.budgetText}>
+            Remaining Balance: ${allocatedAmount - totalExpenses}
+          </Text>
+          <View style={styles.progressBarContainer}>
+            <View
+              style={[
+                styles.progressBar,
+                { width: calculateProgressBarWidth() },
+                totalExpenses > allocatedAmount ? { backgroundColor: 'red' } : null,
+              ]}
+            ></View>
+          </View>
         </>
       ) : (
         <Text style={styles.budgetText}>Budget not yet created</Text>
@@ -204,6 +227,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     paddingHorizontal: 10,
+  },
+  progressBarContainer: {
+    height: 20,
+    backgroundColor: '#f2f2f2',
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: 'green',
+    borderRadius: 10,
   },
 });
 

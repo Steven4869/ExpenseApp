@@ -45,11 +45,6 @@ const ExpenseListPage = () => {
     }
   }, [token]);
 
-  const handleEditExpense = (expenseId) => {
-    // Implement your edit functionality here
-    console.log('Editing expense:', expenseId);
-  };
-
   const handleDeleteExpense = (expenseId) => {
     // Show confirmation alert before deleting the expense
     Alert.alert(
@@ -67,13 +62,13 @@ const ExpenseListPage = () => {
 
               const response = await axios.delete(
                 `http://192.168.29.225:3000/api/expenses/${expenseId}`,
-                { headers }
+                { headers },
               );
 
               if (response.status === 200) {
                 // Remove the deleted expense from the list
                 setExpenses((prevExpenses) =>
-                  prevExpenses.filter((expense) => expense._id !== expenseId)
+                  prevExpenses.filter((expense) => expense._id !== expenseId),
                 );
               } else {
                 console.error('Failed to delete expense:', response.status);
@@ -84,7 +79,7 @@ const ExpenseListPage = () => {
           },
         },
       ],
-      { cancelable: false }
+      { cancelable: false },
     );
   };
 
@@ -102,15 +97,7 @@ const ExpenseListPage = () => {
             <Text style={styles.date}>Date: {new Date(item.date).toDateString()}</Text>
             <Text style={styles.amount}>Amount: {item.amount}</Text>
 
-            <TouchableOpacity
-              onPress={() => handleEditExpense(item._id)}
-            >
-              <Ionicons name="pencil" size={20} color="blue" />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => handleDeleteExpense(item._id)}
-            >
+            <TouchableOpacity onPress={() => handleDeleteExpense(item._id)}>
               <Ionicons name="trash" size={20} color="red" />
             </TouchableOpacity>
           </View>
