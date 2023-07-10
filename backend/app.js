@@ -10,11 +10,11 @@ const budgetRoutes = require('./routes/budgetRoutes');
 
 dotenv.config();
 
-app.use(express.static(path.join(__dirname, 'client/build')));
 // Create Express app
 const app = express();
 
 // Parse JSON request bodies
+app.use(express.static(path.join(__dirname, 'client/build')));
 app.use(express.json());
 // API routes
 app.use('/api/expenses', expenseRoutes);
