@@ -18,18 +18,18 @@ jobs:
           node-version: "16.17.1"
 
       - name: install packages
-        working-directory: /backend
+        working-directory: ./backend
         run: yarn
 
       - name: Create env file
-        working-directory: /backend
+        working-directory: ./backend
         run: |
           echo "${{ secrets.ENV_FILE_BACKEND }}" > .env
       - name: Deploy to my EC2 instance
         uses: easingthemes/ssh-deploy@v2.1.5
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
-          SOURCE: "/backend"
+          SOURCE: "./backend"
           REMOTE_HOST: ${{ secrets.HOST_DNS }}
           REMOTE_USER: ${{ secrets.USERNAME }}
           TARGET: "/var/www/expenseApp_backend/"
