@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const path = require('path');
 const expenseRoutes = require('./routes/expenseRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const userRoutes = require('./routes/userRoutes');
@@ -9,6 +10,7 @@ const budgetRoutes = require('./routes/budgetRoutes');
 
 dotenv.config();
 
+app.use(express.static(path.join(__dirname, 'client/build')));
 // Create Express app
 const app = express();
 
@@ -19,7 +21,7 @@ app.use('/api/expenses', expenseRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/budget', budgetRoutes)
+app.use('/api/budget', budgetRoutes);
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGODB_URI, {
@@ -32,8 +34,6 @@ mongoose
   .catch((error) => {
     console.error('Error connecting to MongoDB:', error);
   });
-
-
 
 // Start the server
 const port = process.env.PORT || 3000;
