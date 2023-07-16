@@ -1,0 +1,45 @@
+name: CICD prod pipeline
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy_backend_on_ec2:
+    name: deploy_backend_on_ec2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+
+      - name: setup node version
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16.17.1"
+
+      - name: install packages
+        working-directory: ./backend
+        run: yarn
+
+      - name: Create env file
+        working-directory: ./backend
+        run: |
+          echo "${{ secrets.ENV_FILE_BACKEND }}" > .env
+      - name: Deploy to my EC2 instance
+        uses: easingthemes/ssh-deploy@v2.1.5
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          SOURCE: "./backend"
+          REMOTE_HOST: "ec2-43-205-214-135.ap-south-1.compute.amazonaws.com"
+          REMOTE_USER: "ubuntu"
+          TARGET: "/var/www/expense_backend/"
+      - name: Restart the server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ec2-43-205-214-135.ap-south-1.compute.amazonaws.com
+          username: ubuntu
+          key: |
+            ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          script: |
+            pm2 restart all
