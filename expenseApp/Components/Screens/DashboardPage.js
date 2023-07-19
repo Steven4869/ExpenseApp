@@ -20,7 +20,8 @@ const DashboardPage = () => {
   const [expenses, setExpenses] = useState([]);
   const [latestTransactions, setLatestTransactions] = useState([]);
   const [totalExpenses, setTotalExpenses] = useState(0);
-
+  const [allocatedAmount, setAllocatedAmount] = useState(0);
+  const [remainingBalance, setRemainingBalance] = useState(0);
 
   useEffect(() => {
     fetchToken();
@@ -48,6 +49,7 @@ const DashboardPage = () => {
         fetchExpenses();
         const totalAmount = response.data.reduce((acc, expense) => acc + expense.amount, 0);
         setTotalExpenses(totalAmount);
+        fetchBudget();
       } else {
         console.error('Failed to fetch expenses:', response.status);
         console.log(response.status.data);
@@ -61,12 +63,36 @@ const DashboardPage = () => {
       fetchExpenses();
     }
   }, [token]);
-
+  const fetchBudget = async () => {
+    try {
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+  
+      const response = await axios.get('http://192.168.29.225:3000/api/budget', { headers });
+  
+      if (response.status === 200) {
+        const budgetData = response.data;
+        setAllocatedAmount(budgetData.amount);
+        setRemainingBalance(budgetData.amount - totalExpenses);
+      } else if (response.status === 404) {
+        setAllocatedAmount(0);
+        setRemainingBalance(0);
+      } else {
+        throw new Error('Failed to fetch budget');
+      }
+    } catch (error) {
+      console.error('Error fetching budget:', error);
+    }
+  };
+  
   useEffect(() => {
     // Update latestTransactions with expenses data
     const transactionsByCategory = expenses.reduce((acc, expense) => {
       const { _id, category, amount } = expense;
-      const existingTransaction = acc.find((transaction) => transaction.category._id === category._id);
+      const existingTransaction = acc.find(
+        (transaction) => transaction.category._id === category._id,
+      );
 
       if (existingTransaction) {
         existingTransaction.amount += amount;
@@ -81,13 +107,11 @@ const DashboardPage = () => {
       return acc;
     }, []);
 
-    const formattedTransactions = transactionsByCategory
-      .slice(0, 4)
-      .map((transaction) => ({
-        id: transaction.id,
-        description: transaction.category.name,
-        amount: transaction.amount,
-      }));
+    const formattedTransactions = transactionsByCategory.slice(0, 4).map((transaction) => ({
+      id: transaction.id,
+      description: transaction.category.name,
+      amount: transaction.amount,
+    }));
 
     setLatestTransactions(formattedTransactions);
   }, [expenses]);
@@ -146,7 +170,7 @@ const DashboardPage = () => {
           <Text style={styles.summaryText}>Total Expenses</Text>
           <Text style={styles.summaryAmount}>${totalExpenses}</Text>
           <Text style={styles.summaryText}>Budget Remaining</Text>
-          <Text style={styles.summaryAmount}>$200</Text>
+          <Text style={styles.summaryAmount}>${remainingBalance}</Text>
         </View>
 
         {/* Latest Transactions */}

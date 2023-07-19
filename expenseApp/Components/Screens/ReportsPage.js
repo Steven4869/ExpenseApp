@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { Svg, G, Circle, Path } from 'react-native-svg';
+import { View, Text, StyleSheet } from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { VictoryPie, VictoryLegend } from 'victory-native';
 
 const ReportsPage = () => {
   const [token, setToken] = useState('');
@@ -50,77 +50,39 @@ const ReportsPage = () => {
   };
 
   const renderPieChart = () => {
-    // Check if the expenses array is empty
-    if (expenses.length === 0) {
-      return <Text>No expenses available.</Text>;
-    }
-
-    // Calculate the total amount spent on each category
     const categoryExpenses = expenses.reduce((acc, expense) => {
       const { category, amount } = expense;
-      if (category in acc) {
-        acc[category] += amount;
+      if (category.name in acc) {
+        acc[category.name] += amount;
       } else {
-        acc[category] = amount;
+        acc[category.name] = amount;
       }
       return acc;
     }, {});
 
-    // Prepare data for the pie chart
-    const chartData = Object.keys(categoryExpenses).map((category) => ({
-      value: categoryExpenses[category],
-      label: category,
+    const data = Object.keys(categoryExpenses).map((category) => ({
+      x: category,
+      y: categoryExpenses[category],
     }));
 
-    const totalValue = chartData.reduce((sum, data) => sum + data.value, 0);
-
-    const colors = [
-      '#E57373',
-      '#FF9800',
-      '#FFEB3B',
-      '#4CAF50',
-      '#2196F3',
-      '#9C27B0',
-      '#F44336',
-      '#FFC107',
-      '#8BC34A',
-      '#03A9F4',
-    ];
-
-    let startAngle = 0;
-    const chart = chartData.map((data, index) => {
-      const percentage = (data.value / totalValue) * 100;
-      const endAngle = startAngle + (percentage / 100) * Math.PI * 2;
-      const largeArcFlag = percentage > 50 ? 1 : 0;
-
-      const startX = Math.cos(startAngle);
-      const startY = Math.sin(startAngle);
-      const endX = Math.cos(endAngle);
-      const endY = Math.sin(endAngle);
-
-      const pathData = [
-        `M ${startX} ${startY}`,
-        `A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY}`,
-        `L 0 0`,
-      ].join(' ');
-
-      startAngle = endAngle;
-
-      return (
-        <Path
-          key={data.label}
-          d={pathData}
-          fill={colors[index % colors.length]}
-          stroke="white"
-          strokeWidth="0.01"
-        />
-      );
-    });
-
     return (
-      <Svg width={300} height={300} viewBox="-1 -1 2 2">
-        <G>{chart}</G>
-      </Svg>
+      <View style={styles.chartContainer}>
+        <View style={styles.pieChartContainer}>
+          <VictoryPie
+            data={data}
+            colorScale={['#fbd203', '#ffb300', '#ff9100', '#ff6c00', '#ff3c00']}
+            innerRadius={70}
+          />
+        </View>
+        <View style={styles.legendContainer}>
+          <VictoryLegend
+            data={data.map((d) => ({
+              name: `${d.x} ($${d.y})`,
+            }))}
+            colorScale={['#fbd203', '#ffb300', '#ff9100', '#ff6c00', '#ff3c00']}
+          />
+        </View>
+      </View>
     );
   };
 
@@ -129,7 +91,7 @@ const ReportsPage = () => {
       <Text style={styles.title}>Reports</Text>
 
       {isLoading ? (
-        <ActivityIndicator size="large" color="#000" />
+        <Text>Loading...</Text>
       ) : (
         <View style={styles.chartContainer}>{renderPieChart()}</View>
       )}
@@ -151,7 +113,12 @@ const styles = StyleSheet.create({
   },
   chartContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
+  },
+  pieChartContainer: {
+    marginBottom: 20,
+  },
+  legendContainer: {
+    alignItems: 'center',
   },
 });
 
