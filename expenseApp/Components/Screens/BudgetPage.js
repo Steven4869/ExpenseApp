@@ -6,13 +6,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const BudgetPage = () => {
   const [budget, setBudget] = useState('');
   const [allocatedAmount, setAllocatedAmount] = useState(0);
-  const [remainingBalance, setRemainingBalance] = useState(0);
+  const [remainingBalance, setRemainingBalance] = useState(0);  
   const [isBudgetAllocated, setIsBudgetAllocated] = useState(false);
   const [token, setToken] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isTokenLoading, setIsTokenLoading] = useState(true);
   const [totalExpenses, setTotalExpenses] = useState(0);
-
+  
   useEffect(() => {
     const fetchBudgetData = async () => {
       const storedToken = await AsyncStorage.getItem('token');

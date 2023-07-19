@@ -27,8 +27,8 @@
     "react-native-pie-chart": "^3.0.1",
     "react-native-screens": "^3.22.0",
     "react-native-slider": "^0.11.0",
-    "react-native-svg": "^13.10.0",
-    "react-native-svg-transformer": "^1.0.0"
+    "react-native-svg": "^13.4.0",
+    "victory-native": "^36.6.11"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

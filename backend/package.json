@@ -2,9 +2,9 @@
     "name": "expense-planner-backend",
     "version": "1.0.0",
     "description": "Backend server for React Native Expense Planner app",
-    "main": "app.js",
+    "main": "server.js",
     "scripts": {
-        "start": "nodemon app.js"
+        "start": "nodemon server.js"
     },
     "dependencies": {
         "bcrypt": "^5.1.0",
